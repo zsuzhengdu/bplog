@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+function bplog-app() { egrep "\"app\":\s?\"$1\"" /var/log/messages; if [ $? -ne 0 ]; then echo "No log found for app: $1"; fi; }
+function bplog-http-status-2xx() { egrep "\"http_status\":\"?2[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-4xx() { egrep "\"http_status\":\"?4[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-5xx() { egrep "\"http_status\":\"?5[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-0() { egrep "\"http_status\":\"?0\"?" /var/log/messages; }
+function bplog-app-http-status() {
+    egrep \"app\":\s?\"$1\" /var/log/messages | egrep "\"http_status\":\"?$2\"?";
+    if [ $? -ne 0 ]; then echo "No log found for app: $1 or no matched log found for http_status: $2 for app: $1"; fi; }
+function bplog-app-error() {
+    egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "[eE]rror"; \
+    if [ $? -ne 0 ]; then echo "No error log found for app: $1"; fi; }
+function bplog-error() { egrep "[eE]rror" /var/log/messages; if [ $? -ne 0 ]; then echo "No error log found"; fi; }
+function bplog-app-http-status-stats() {
+    echo "app $1 http-status log count:";
+    echo "http-status-2xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?2[0-9]{2}\"?" | wc -l)";
+    echo "http-status-4xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?4[0-9]{2}\"?" | wc -l)";
+    echo "http-status-5xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?5[0-9]{2}\"?" | wc -l)";
+    echo "http-status-0  : $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?0\"?" | wc -l)"; }
+
+args=("$@")
+
+if [ "$1" == "-h" ]; then
+  echo "Usage: `basename $0`"
+  echo "    bplog error                                                 filter all error log"
+  echo "    bplog app [app-name]                                        filter log on app by name "
+  echo "    bplog app [app-name] error                                  filter app's error log"
+  echo "    bplog http-status-2xx                                       filter log on http response code 2xx"
+  echo "    bplog http-status-4xx                                       filter log on http response code 4xx"
+  echo "    bplog http-status-5xx                                       filter log on http response code 5xx"
+  echo "    bplog http-status-4xx                                       filter log on http response code 0"
+  echo "    bplog http-status [app-name] [http-status-code]             filter log on app and http response code"
+  echo "    bplog app-http-status-stats [app-name]                      report of the count of each http response code (2xx vs 4xx vs 5xx vs 0) for given app"
+  exit 0
+fi
+
+if [ ${args[0]} ] && [ ${args[0]} == "app" ]
+then
+    if [ ${args[2]} ] && [ ${args[2]} == "error" ]
+    then
+        echo "call bplog-app-error"
+        bplog-app-error ${args[1]}
+    else
+	    bplog-app ${args[1]}
+	fi
+elif [ ${args[0]} ] && [ ${args[0]} == "http-status" ]
+then
+    if [ ${args[1]} == "2xx" ]
+    then
+        bplog-http-status-2xx
+    elif [ ${args[1]} == "4xx" ]
+    then
+        bplog-http-status-4xx
+    elif [ ${args[1]} == "5xx" ]
+    then
+        bplog-http-status-5xx
+    elif [ ${args[1]} == "0" ]
+    then
+        bplog-http-status-0
+    else
+        bplog-app-http-status ${args[1]} ${args[2]}
+    fi
+elif [ ${args[0]} == "error" ]
+then
+    echo "call bplog-error"
+    bplog-error
+elif [ ${args[0]} == "app-http-status-stats" ]
+then
+    bplog-app-http-status-stats ${args[1]}
+fi
