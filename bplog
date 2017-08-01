@@ -2,12 +2,12 @@
 
 function version() { echo "bplog version 0.0.1"; }
 function bplog-app() { egrep "\"app\":\s?\"$1\"" /var/log/messages; if [ $? -ne 0 ]; then echo "No log found for app: $1"; fi; }
-function bplog-http-status-2xx() { egrep "\"http_status\":\"?2[0-9]{2}\"?" /var/log/messages; }
-function bplog-http-status-4xx() { egrep "\"http_status\":\"?4[0-9]{2}\"?" /var/log/messages; }
-function bplog-http-status-5xx() { egrep "\"http_status\":\"?5[0-9]{2}\"?" /var/log/messages; }
-function bplog-http-status-0() { egrep "\"http_status\":\"?0\"?" /var/log/messages; }
+function bplog-http-status-2xx() { egrep "\"http_status\":\s?\"?2[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-4xx() { egrep "\"http_status\":\s?\"?4[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-5xx() { egrep "\"http_status\":\s?\"?5[0-9]{2}\"?" /var/log/messages; }
+function bplog-http-status-0() { egrep "\"http_status\":\s?\"?0\"?" /var/log/messages; }
 function bplog-app-http-status() {
-    egrep \"app\":\s?\"$1\" /var/log/messages | egrep "\"http_status\":\"?$2\"?";
+    egrep \"app\":\s?\"$1\" /var/log/messages | egrep "\"http_status\":\s?\"?$2\"?";
     if [ $? -ne 0 ]; then echo "No log found for app: $1 or no matched log found for http_status: $2 for app: $1"; fi; }
 function bplog-app-error() {
     egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "[eE]rror"; \
@@ -15,10 +15,10 @@ function bplog-app-error() {
 function bplog-error() { egrep "[eE]rror" /var/log/messages; if [ $? -ne 0 ]; then echo "No error log found"; fi; }
 function bplog-app-http-status-stats() {
     echo "app $1 http-status log count:";
-    echo "http-status-2xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?2[0-9]{2}\"?" | wc -l)";
-    echo "http-status-4xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?4[0-9]{2}\"?" | wc -l)";
-    echo "http-status-5xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?5[0-9]{2}\"?" | wc -l)";
-    echo "http-status-0  : $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\"?0\"?" | wc -l)"; }
+    echo "http-status-2xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\s?\"?2[0-9]{2}\"?" | wc -l)";
+    echo "http-status-4xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\s?\"?4[0-9]{2}\"?" | wc -l)";
+    echo "http-status-5xx: $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\s?\"?5[0-9]{2}\"?" | wc -l)";
+    echo "http-status-0  : $(egrep "\"app\":\s?\"$1\"" /var/log/messages | egrep "\"http_status\":\s?\"?0\"?" | wc -l)"; }
 
 args=("$@")
 
