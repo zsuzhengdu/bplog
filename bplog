@@ -21,8 +21,10 @@ function bplog-app-http-status-stats() {
 
 args=("$@")
 
-if [ "$1" == "-h" ]; then
-  echo "Usage: `basename $0`"
+if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$1" == "" ]
+then
+  echo "Usage:"
+  echo "    bplog -h | --help                                           show help"
   echo "    bplog error                                                 filter all error log"
   echo "    bplog app [app-name]                                        filter log on app by name "
   echo "    bplog app [app-name] error                                  filter app's error log"
@@ -39,7 +41,6 @@ if [ ${args[0]} ] && [ ${args[0]} == "app" ]
 then
     if [ ${args[2]} ] && [ ${args[2]} == "error" ]
     then
-        echo "call bplog-app-error"
         bplog-app-error ${args[1]}
     else
 	    bplog-app ${args[1]}
@@ -61,11 +62,10 @@ then
     else
         bplog-app-http-status ${args[1]} ${args[2]}
     fi
-elif [ ${args[0]} == "error" ]
+elif [ ${args[0]} ] && [ ${args[0]} == "error" ]
 then
-    echo "call bplog-error"
     bplog-error
-elif [ ${args[0]} == "app-http-status-stats" ]
+elif [ ${args[0]} ] && [ ${args[0]} == "app-http-status-stats" ]
 then
     bplog-app-http-status-stats ${args[1]}
 fi
